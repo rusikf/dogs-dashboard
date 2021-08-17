@@ -1,1 +1,17 @@
 @import '~antd/dist/antd.css';
+
+.site-page-header {
+  background-color: white;
+}
+
+.mt-10 {
+  margin-top: 10px;
+}
+
+.ml-2 {
+  margin-left: 2px;
+}
+
+.p-10 {
+  padding: 10px;
+}
