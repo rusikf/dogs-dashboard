@@ -1,10 +1,18 @@
 import React from 'react';
 import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
 import { Menu, Layout } from 'antd'
+import { useSelector } from 'react-redux'
+
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 
 export default function LeftMenu() {
+  const filteredBreeds = useSelector(state => state.breed.filteredBreeds)
+
+  if (filteredBreeds.length === 0) {
+    return null
+  }
+
   return (
     <Sider width={200} className="site-layout-background">
         <Menu

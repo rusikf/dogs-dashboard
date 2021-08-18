@@ -1,73 +1,38 @@
 import React from 'react';
 import '../stylesheets/app.css';
 
+import { createStore } from 'redux';
+import rootReducer from '../reducers/rootReducer';
+
+import { Provider } from 'react-redux';
+
 import Header from './Header'
 import LeftMenu from './LeftMenu'
+import BreedFilter from './BreedFilter'
+import DogsList from './DogsList'
 
-import { Layout, Button, Select, Row, Col, Typography, Image } from 'antd';
+import { Layout, Typography } from 'antd';
 const { Title } = Typography;
-const { Option } = Select;
 
 function App() {
-  const handleChange = () => {
-    console.log('handle Change')
-  }
+  let store = createStore(rootReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
-  const children = [];
-  for (let i = 10; i < 36; i++) {
-    children.push(<Option key={i.toString(36) + i}>{i.toString(36) + i}</Option>);
-  }
   return (
-    <div className="app">
-       <Layout>
-        <Header />
+    <Provider store={store}>
+      <div className="app">
         <Layout>
-          <LeftMenu />
-          <Layout style={{ padding: '0 24px 24px' }}>
-          <Title level={3} className='mt-10'>Search</Title>
-          <Row>
-            <Col span={6}>
-              <Select
-                mode="multiple"
-                allowClear
-                style={{ width: '100%' }}
-                placeholder="Please select"
-                onChange={handleChange}
-              >
-                {children}
-              </Select>
-            </Col>
-            <Col span={2}>
-              <Button type="primary" htmlType="submit" className='ml-2'>
-                Search
-              </Button>
-            </Col>
-            </Row>
-
-            <Row className='mt-10'>
-              <Col span={8}>
-              <Image
-                src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                className='p-10'
-              />
-              </Col>
-              <Col span={8}>
-              <Image
-                src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                className='p-10'
-              />
-              </Col>
-              <Col span={8}>
-              <Image
-                src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                className='p-10'
-              />
-              </Col>
-            </Row>
+          <Header />
+          <Layout>
+            <LeftMenu />
+            <Layout style={{ padding: '0 24px 24px' }}>
+            <Title level={3} className='mt-10'>Search</Title>
+              <BreedFilter />
+              <DogsList />
+            </Layout>
           </Layout>
         </Layout>
-      </Layout>
-    </div>
+      </div>
+    </Provider>
   );
 }
 
