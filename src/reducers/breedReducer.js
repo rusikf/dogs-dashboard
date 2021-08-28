@@ -1,14 +1,24 @@
 const initialState = {
-  // TODO: fetch breeds from API
-  // TODO: limit breeds in select input to 5 https://stackoverflow.com/questions/60325757/select-limit-number-of-selected-options
-
-  allBreeds: ['boxer', 'african', 'akita', 'bulldog'],
-  filteredBreeds: []
+  allBreeds: [],
+  searchedBreeds: [],
+  breedsTree: {},
+  filteredBreed: 'all'
 }
+
+const updateBreeds = ({ state, action, key }) => {
+  return { ...state, [key]: action.payload }
+}
+
 const breedReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'UPDATE_FILTERED_BREEDS':
-      return { ...state, filteredBreeds: action.payload }
+    case 'UPDATE_BREEDS_TREE':
+      return updateBreeds({ state, action, key: 'breedsTree' })
+    case 'UPDATE_ALL_BREEDS':
+      return updateBreeds({ state, action, key: 'allBreeds' })
+    case 'UPDATE_SEARCHED_BREEDS':
+      return updateBreeds({ state, action, key: 'searchedBreeds' })
+    case 'UPDATE_FILTERED_BREED':
+      return updateBreeds({ state, action, key: 'filteredBreed' })
     default:
       return state
   }

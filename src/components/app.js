@@ -10,6 +10,7 @@ import Header from './Header'
 import LeftMenu from './LeftMenu'
 import BreedFilter from './BreedFilter'
 import DogsList from './DogsList'
+import DogsPagination from './DogsPagination';
 
 import { Layout, Typography } from 'antd';
 const { Title } = Typography;
@@ -28,6 +29,7 @@ function App() {
             <Title level={3} className='mt-10'>Search</Title>
               <BreedFilter />
               <DogsList />
+              <DogsPagination />
             </Layout>
           </Layout>
         </Layout>

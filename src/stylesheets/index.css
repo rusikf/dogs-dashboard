@@ -16,3 +16,12 @@
   padding: 10px;
 }
 
+.pagination--header {
+  row-gap: 0px;
+  display: flex;
+  align-items: center;
+}
+
+.bold-text {
+  font-weight: bold;
+}

@@ -2,28 +2,49 @@ import React, { useEffect } from 'react'
 import { Button, Select, Row, Col } from 'antd';
 import { useDispatch, useSelector } from 'react-redux'
 import { shuffleArray, sampleArrayElement } from '../utils';
-import { fetchDogs } from '../api/dogs';
-const { Option } = Select;
+import { fetchDogs, fetchBreeds } from '../api/dogs';
+import { MAX_BREEDS_TO_SELECT } from '../constants';
 
-const PER_PAGE_LIMIT = 12
+const { Option } = Select;
 
 export default function BreedFilter() {
   const allBreeds = useSelector(state => state.breed.allBreeds)
+  const searchedBreeds = useSelector(state => state.breed.searchedBreeds)
+
   const dispatch = useDispatch()
 
   useEffect(() => {
-    const randomBreed = sampleArrayElement(allBreeds)
-    handleChange([randomBreed])
-    dispatch({ type: 'UPDATE_FILTERED_BREEDS', payload: [] })
+    async function fetchBreedsFromApi() {
+      const breedsFromAPI = await fetchBreeds()
+
+      const breedsWithoutChilds = Object.keys(breedsFromAPI)
+      dispatch({ type: 'UPDATE_ALL_BREEDS', payload: breedsWithoutChilds })
+      dispatch({ type: 'UPDATE_BREEDS_TREE', payload: breedsFromAPI })
+
+      const randomBreed = sampleArrayElement(breedsWithoutChilds)
+      handleChange([randomBreed])
+      dispatch({ type: 'UPDATE_SEARCHED_BREEDS', payload: [] })
+    }
+
+    fetchBreedsFromApi()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const fetchBreeds = async (values) => {
+  const fetchAndStoreDogs = async (values) => {
     let dogs = []
 
     await values.reduce(async (promise, breed) => {
       await promise;
       const collection = await fetchDogs(breed)
-      dogs = dogs.concat(collection)
+
+      const collectionWithBreed = collection.map(dogUrl => {
+        return {
+          url: dogUrl,
+          breed: breed
+        }
+      })
+
+      dogs = dogs.concat(collectionWithBreed)
 
     }, Promise.resolve());
 
@@ -31,17 +52,25 @@ export default function BreedFilter() {
   }
 
   const handleChange = async (values) => {
-    dispatch({ type: 'UPDATE_FILTERED_BREEDS', payload: values })
+    dispatch({ type: 'UPDATE_SEARCHED_BREEDS', payload: values })
 
-    let dogs = await fetchBreeds(values)
-    const payload = shuffleArray(dogs).slice(0, PER_PAGE_LIMIT)
+    let dogs = await fetchAndStoreDogs(values)
+    const payload = shuffleArray(dogs)
+    dispatch({ type: 'UPDATE_ALL_DOGS', payload })
     dispatch({ type: 'UPDATE_DOGS', payload })
   }
 
   const filterOptions = []
 
   allBreeds.forEach((breed) => {
-    filterOptions.push(<Option key={breed}>{breed}</Option>)
+    let disabled
+    if (searchedBreeds.length === MAX_BREEDS_TO_SELECT) {
+      disabled = searchedBreeds.includes(breed) ? false : true
+    } else {
+      disabled = false
+    }
+
+    filterOptions.push(<Option key={breed} disabled={disabled}>{breed}</Option>)
   })
 
   return (

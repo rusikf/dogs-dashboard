@@ -1,45 +1,85 @@
 import React from 'react';
-import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
-import { Menu, Layout } from 'antd'
-import { useSelector } from 'react-redux'
+import { Layout, Typography } from 'antd'
+import { useSelector, useDispatch } from 'react-redux'
 
-const { SubMenu } = Menu;
+const { Title } = Typography
 const { Sider } = Layout;
 
 export default function LeftMenu() {
-  const filteredBreeds = useSelector(state => state.breed.filteredBreeds)
-
-  if (filteredBreeds.length === 0) {
+  const searchedBreeds = useSelector(state => state.breed.searchedBreeds)
+  const allBreeds = useSelector(state => state.breed.allBreeds)
+    .filter(breed => searchedBreeds.includes(breed))
+  const breedsTree = useSelector(state => state.breed.breedsTree)
+  const allDogs = useSelector(state => state.dogs.allDogs)
+  const dispatch = useDispatch()
+  const filteredBreed = useSelector(state => state.breed.filteredBreed)
+  if (searchedBreeds.length === 0) {
     return null
   }
 
+  const handleClick = (filteredValue) => {
+    let breedPayload
+    let dogsPayload
+
+    breedPayload = filteredValue
+
+    if (filteredValue === 'all') {
+      dogsPayload = allDogs
+    } else {
+
+      const filteredParentValues = Object.entries(breedsTree).find(([key, values]) => {
+        return allBreeds.includes(key) && values.includes(filteredValue)
+      })
+      const filteredParentValue = (filteredParentValues || [])[0]
+
+
+      dogsPayload = allDogs.filter(dog => {
+        const breedMatched = dog.breed === filteredValue
+        const subBreedMatched = dog.breed === filteredParentValue
+
+        if (breedMatched || subBreedMatched) {
+          return true
+        }
+        return false
+      })
+    }
+
+    dispatch({ type: 'UPDATE_FILTERED_BREED', payload: breedPayload })
+    dispatch({ type: 'UPDATE_DOGS', payload: dogsPayload })
+  }
+
+  const activeClassFor = (breed) => {
+    return breed === filteredBreed ? 'bold-text' : ''
+  }
+
+  const hasSubMenu = (breed) => {
+    return breedsTree[breed] && breedsTree[breed].length > 0
+  }
+
+  const menuItems = ['all'].concat(allBreeds).map(breed => {
+    if (hasSubMenu(breed)) {
+      return (
+        <li key={breed}><a className={ activeClassFor(breed) } href='/#' onClick={ () => handleClick(breed) } >{ breed }</a>
+        <ul>
+          { breedsTree[breed].map(subMenu => {
+            return (<li key={subMenu}><a href='/#' className={ activeClassFor(subMenu) } onClick={() => handleClick(subMenu)}>{ subMenu }</a></li>)
+          })}
+        </ul>
+        </li>
+      )
+    }
+    return (
+      <li key={breed}>
+        <a href='/#' className={ activeClassFor(breed) } onClick={ () => handleClick(breed) }>{ breed }</a>
+      </li>)
+  })
+
   return (
-    <Sider width={200} className="site-layout-background">
-        <Menu
-          mode="inline"
-          defaultSelectedKeys={['1']}
-          defaultOpenKeys={['sub1']}
-          style={{ height: '100%', borderRight: 0 }}
-        >
-          <SubMenu key="sub1" icon={<UserOutlined />} title="subnav 1">
-            <Menu.Item key="1">option1</Menu.Item>
-            <Menu.Item key="2">option2</Menu.Item>
-            <Menu.Item key="3">option3</Menu.Item>
-            <Menu.Item key="4">option4</Menu.Item>
-          </SubMenu>
-          <SubMenu key="sub2" icon={<LaptopOutlined />} title="subnav 2">
-            <Menu.Item key="5">option5</Menu.Item>
-            <Menu.Item key="6">option6</Menu.Item>
-            <Menu.Item key="7">option7</Menu.Item>
-            <Menu.Item key="8">option8</Menu.Item>
-          </SubMenu>
-          <SubMenu key="sub3" icon={<NotificationOutlined />} title="subnav 3">
-            <Menu.Item key="9">option9</Menu.Item>
-            <Menu.Item key="10">option10</Menu.Item>
-            <Menu.Item key="11">option11</Menu.Item>
-            <Menu.Item key="12">option12</Menu.Item>
-          </SubMenu>
-        </Menu>
-      </Sider>
+    <Sider width={200} className="site-layout-background" style={{ backgroundColor: 'white' }}>
+      <Title level={5} style={{ display: 'flex', justifyContent: 'center' }}>Filters</Title>
+      <ul>
+        { menuItems }
+      </ul>
+    </Sider>
   )
 }
