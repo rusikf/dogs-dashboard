@@ -1,4 +1,4 @@
-Deployed to: `https://rusikf.github.io/dogs-dashboard/`
+Deployed to: [https://rusikf.github.io/dogs-dashboard/](https://rusikf.github.io/dogs-dashboard/)
 
 Start app: `yarn start`
 
